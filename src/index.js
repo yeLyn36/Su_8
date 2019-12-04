@@ -1,14 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
 
 class Square extends React.Component {
   render() {
     return (
-      <button
-        className="square"
-        onClick={() => this.props.onClick()}
-      >
+      <button className="square" onClick={() => this.props.onClick()}>
         {this.props.value}
       </button>
     );
@@ -16,12 +13,13 @@ class Square extends React.Component {
 }
 
 class Board extends React.Component {
-  
   renderSquare(i) {
-    return (<Square
-      value={this.props.squares[i]}
-      onClick={() => this.props.onClick(i)}
-    />);
+    return (
+      <Square
+        value={this.props.squares[i]}
+        onClick={() => this.props.onClick(i)}
+      />
+    );
   }
 
   render() {
@@ -51,11 +49,14 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      history: [{
-        squares: Array(9).fill(null),
-      }],
+      history: [
+        {
+          squares: Array(9).fill(null)
+        }
+      ],
       stepNumber: 0,
       xIsNext: true,
+      isAscending: true
     };
   }
 
@@ -66,20 +67,28 @@ class Game extends React.Component {
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    squares[i] = this.state.xIsNext ? "X" : "O";
     this.setState({
-      history: history.concat([{
-        squares: squares,
-      }]),
+      history: history.concat([
+        {
+          squares: squares
+        }
+      ]),
       stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
+      xIsNext: !this.state.xIsNext
+    });
+  }
+
+  handleIsAscending() {
+    this.setState({
+      isAscending: !this.state.isAscending //true면 오름차순, false면 내림차순
     });
   }
 
   jumpTo(step) {
     this.setState({
       stepNumber: step,
-      xIsNext: (step % 2) === 0,
+      xIsNext: step % 2 === 0
     });
   }
 
@@ -87,35 +96,39 @@ class Game extends React.Component {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
+    const isAscending = this.state.isAscending;
 
     const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move #' + move :
-        'Go to game start';
+      if (!isAscending) {
+        move = history.length - 1 - move;
+      }
+      const desc = move ? "Go to move #" + move : "Go to game start";
       return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
+        <div>
+          <li key={move}>
+            <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          </li>
+        </div>
       );
     });
 
     let status;
     if (winner) {
-      status = 'Winner: ' + winner;
+      status = "Winner: " + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      status = "Next player: " + (this.state.xIsNext ? "X" : "O");
     }
 
     return (
       <div className="game">
         <div className="game-board">
-          <Board
-            squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
-          />
+          <Board squares={current.squares} onClick={i => this.handleClick(i)} />
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <button onClick={() => this.handleIsAscending()}>
+            오름차순/내림차순
+          </button>
           <ol>{moves}</ol>
         </div>
       </div>
@@ -125,10 +138,7 @@ class Game extends React.Component {
 
 // ========================================
 
-ReactDOM.render(
-  <Game />,
-  document.getElementById('root')
-);
+ReactDOM.render(<Game />, document.getElementById("root"));
 
 function calculateWinner(squares) {
   const lines = [
@@ -139,7 +149,7 @@ function calculateWinner(squares) {
     [1, 4, 7],
     [2, 5, 8],
     [0, 4, 8],
-    [2, 4, 6],
+    [2, 4, 6]
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
